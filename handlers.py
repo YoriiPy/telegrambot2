@@ -10,7 +10,7 @@ from DataBase import add_user, cursor, get_user, update_user, delete_user, delet
     add_payment, get_operation_id, get_short_key, get_history_payments, search_blocked_user
 from classess import wait
 from keyboards import yes_or_no_keyboard, get_admin_keyboard, get_return_start_keyboard, get_admin_start_keyboard, \
-    get_user_start_keyboard, super_admin_keyboard, get_return_admin_keyboard, get_reply_admin_keyboard, back_to_start
+    get_user_start_keyboard, super_admin_keyboard, get_return_admin_keyboard, get_reply_admin_keyboard, back_to_starts
 from aiogram.types import PreCheckoutQuery
 router = Router()
 
@@ -66,9 +66,9 @@ async def users(callback: CallbackQuery):
     for admin in admins:
         string_admin += str(f"{admin[0]}\n")
     if string:
-        await callback.message.edit_text(f"Пользователи:\n{string}Админы: {string_admin}", parse_mode="HTML", reply_markup= await back_to_start())
+        await callback.message.edit_text(f"Пользователи:\n{string}Админы: {string_admin}", parse_mode="HTML", reply_markup= await back_to_starts())
     else:
-        await callback.message.edit_text(f"Пользователи:\n{string}нету\n\nАдмины: {string_admin}", parse_mode="HTML", reply_markup=await back_to_start())
+        await callback.message.edit_text(f"Пользователи:\n{string}нету\n\nАдмины: {string_admin}", parse_mode="HTML", reply_markup=await back_to_starts())
 
 
 #ОБРАБОТЧИКИ CALLBACK
