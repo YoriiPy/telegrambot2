@@ -127,5 +127,5 @@ def get_short_key(operation_id):
         return result[0]
 
 def get_history_payments(user_id):
-    cursor.execute("""SELECT * FROM payments WHERE user_id = ?""", (user_id,))
+    cursor.execute("""SELECT user_id, operation_id, data, short_key FROM payments WHERE user_id = ?""", (user_id,))
     return cursor.fetchall()

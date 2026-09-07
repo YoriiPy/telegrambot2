@@ -2,12 +2,11 @@ from aiogram import Bot, Dispatcher
 from aiogram.client.session.aiohttp import AiohttpSession
 from os import getenv
 
-from aiohttp import ClientSession
+
 from dotenv import load_dotenv
 from handlers import router
 import asyncio
-import aiohttp
-import logging
+
 
 
 

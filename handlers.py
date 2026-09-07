@@ -1,6 +1,4 @@
 import asyncio
-from encodings import rot_13
-import pay
 from aiogram import Router, F, Bot
 from aiogram.exceptions import TelegramBadRequest, TelegramAPIError
 from aiogram.fsm.context import FSMContext
@@ -12,7 +10,7 @@ from DataBase import add_user, cursor, get_user, update_user, delete_user, delet
     add_payment, get_operation_id, get_short_key, get_history_payments, search_blocked_user
 from classess import wait
 from keyboards import yes_or_no_keyboard, get_admin_keyboard, get_return_start_keyboard, get_admin_start_keyboard, \
-    get_user_start_keyboard, super_admin_keyboard, get_return_admin_keyboard, get_reply_admin_keyboard
+    get_user_start_keyboard, super_admin_keyboard, get_return_admin_keyboard, get_reply_admin_keyboard, back_to_start
 from aiogram.types import PreCheckoutQuery
 router = Router()
 
@@ -24,6 +22,7 @@ async def start_command(message: Message):
     if result:
         await message.answer("Вы заблокированы ❌")
         return
+
     user_id = message.from_user.id
     if search_super_admin(user_id):
         if search_user(user_id):
@@ -56,8 +55,6 @@ async def users(callback: CallbackQuery):
         return
     cursor.execute("SELECT * FROM users")
     user = cursor.fetchall()
-    back_to_starts = InlineKeyboardBuilder()
-    back_to_starts.button(text="Назад ⬅️", callback_data="back_to_start")
     string = ""
     for users in user:
         string += f"Имя | Фамилия: {users[1]}\n"
@@ -69,9 +66,9 @@ async def users(callback: CallbackQuery):
     for admin in admins:
         string_admin += str(f"{admin[0]}\n")
     if string:
-        await callback.message.edit_text(f"Пользователи:\n{string}Админы: {string_admin}", parse_mode="HTML", reply_markup=back_to_starts.as_markup())
+        await callback.message.edit_text(f"Пользователи:\n{string}Админы: {string_admin}", parse_mode="HTML", reply_markup= await back_to_start())
     else:
-        await callback.message.edit_text(f"Пользователи:\n{string}нету\n\nАдмины: {string_admin}", parse_mode="HTML", reply_markup=back_to_starts.as_markup())
+        await callback.message.edit_text(f"Пользователи:\n{string}нету\n\nАдмины: {string_admin}", parse_mode="HTML", reply_markup=await back_to_start())
 
 
 #ОБРАБОТЧИКИ CALLBACK
@@ -674,9 +671,9 @@ async def history_payments_handler(callback: CallbackQuery, state: FSMContext, b
     history_payments = get_history_payments(user_id)
     text = ""
     for payment in history_payments:
-        text += f"{payment[0]}\n"
+        text += f"Дата: {payment[2]}\nКлюч: {payment[3]}\n\n"
     if history_payments:
-        await callback.message.edit_text(text)
+        await callback.message.edit_text(text, reply_markup = await back_to_start())
     else:
         await callback.message.edit_text("У вас нету ни одного платежа ❌💵")
 

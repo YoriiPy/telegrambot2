@@ -72,3 +72,8 @@ async def get_reply_admin_keyboard():
     reply_admin_keyboard.button(text="Ответить 👤", callback_data="reply_admin")
     return reply_admin_keyboard.as_markup()
 
+
+async def back_to_start():
+    back_to_start_keyboard = InlineKeyboardBuilder()
+    back_to_start_keyboard.button(text="Назад ⬅️", callback_data="back_to_start")
+    return back_to_start_keyboard.as_markup()
