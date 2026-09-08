@@ -48,17 +48,18 @@ async def get_return_start_keyboard():
 
 async def super_admin_keyboard():
     super_admin_keyboard = InlineKeyboardBuilder()
-    super_admin_keyboard.button(text="Найти пользователя 🔎", callback_data="search_user_profile")
-    super_admin_keyboard.button(text="Удалить пользователя 👤", callback_data="delete_users")
-    super_admin_keyboard.button(text="Очистить БД 📝", callback_data="delete_all_users")
-    super_admin_keyboard.button(text="Статистика 📊", callback_data="statistics")
-    super_admin_keyboard.button(text="Удалить админа 👮", callback_data="delete_admin")
-    super_admin_keyboard.button(text="Добавить админа 👮", callback_data="add_admin")
-    super_admin_keyboard.button(text="Рассылка 📢", callback_data="BroadCast")
-    super_admin_keyboard.button(text="Рассылка админам 👮", callback_data="BroadCast_admin")
-    super_admin_keyboard.button(text="Блок пользователя 🚫", callback_data="block_user")
+    super_admin_keyboard.button(text="Найти пользователя 🔎", callback_data="search_user_profile", style="success")
+    super_admin_keyboard.button(text="Удалить пользователя 👤", callback_data="delete_users", style="success")
+    super_admin_keyboard.button(text="Рассылка пользователям 📢", callback_data="BroadCast", style="success")
+    super_admin_keyboard.button(text="Удалить админа 👮", callback_data="delete_admin", style="primary")
+    super_admin_keyboard.button(text="Добавить админа 👮", callback_data="add_admin", style="primary")
+    super_admin_keyboard.button(text="Рассылка админам 👮", callback_data="BroadCast_admin", style="primary")
+    super_admin_keyboard.button(text="Статистика 📊", callback_data="statistics", style="primary")
+    super_admin_keyboard.button(text="Блок пользователя 🚫", callback_data="block_user", style="danger")
+    super_admin_keyboard.button(text="Разблок пользователя 🚫", callback_data="unblock_user", style="danger")
+    super_admin_keyboard.button(text="Очистить БД 📝", callback_data="delete_all_users", style="danger")
     super_admin_keyboard.button(text="Назад ⬅️", callback_data="back_to_start")
-    super_admin_keyboard.adjust(2, 2, 2, 2, 1, 1)
+    super_admin_keyboard.adjust(3, 3, 3, 1, 1)
 
     return super_admin_keyboard.as_markup()
 
