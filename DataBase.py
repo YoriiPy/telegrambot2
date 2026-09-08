@@ -99,6 +99,13 @@ def search_blocked_user(user_id):
     cursor.execute("SELECT * FROM blocked_users WHERE user_id = ?", (user_id,))
     return cursor.fetchall()
 
+def delete_blocked_user(user_id):
+    result = search_user(user_id)
+    if result:
+        cursor.execute("DELETE * FROM blocked_users WHERE user_id = ?", (user_id, ))
+
+
+
 # ИСТОРИЯ ОПЛАТ
 cursor.execute("""CREATE TABLE IF NOT EXISTS payments (
                user_id INTEGER,
