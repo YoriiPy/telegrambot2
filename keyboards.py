@@ -92,7 +92,7 @@ async def func_admin_for_users(user_id):
     if search_super_admin(user_id) or search_super_admin(user_id):
         admin_keyboard.button(text="🔎 Найти пользователя", callback_data="search_user_profile", style="success")
         admin_keyboard.button(text="👤 Удалить пользователя", callback_data="delete_users", style="success")
-        admin_keyboard.button(text="➡️ Назад", callback_data="back_to_super_admin_menu", style="success")
+        admin_keyboard.button(text="➡️ Назад", callback_data="back_to_super_admin_menu", style="primary")
         admin_keyboard.adjust(1, 1, 1)
         return admin_keyboard.as_markup()
     else:
