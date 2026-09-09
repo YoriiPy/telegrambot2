@@ -9,8 +9,10 @@ from DataBase import add_user, cursor, get_user, update_user, delete_user, delet
     delete_admin, search_admin, all_users, all_admins, search_super_admin, add_blocked_user, all_blocked_users, \
     add_payment, get_operation_id, get_short_key, get_history_payments, search_blocked_user
 from classess import wait
-from keyboards import yes_or_no_keyboard, get_admin_keyboard, get_return_start_keyboard, get_admin_start_keyboard, \
-    get_user_start_keyboard, super_admin_keyboard, get_return_admin_keyboard, get_reply_admin_keyboard, back_to_starts
+from keyboards import yes_or_no_keyboard, get_return_start_keyboard, get_admin_start_keyboard, \
+    get_user_start_keyboard, get_super_admin_keyboard_menu, get_return_admin_keyboard, get_reply_admin_keyboard, \
+    back_to_starts, get_admin_keyboard_menu, func_admin_for_users, \
+    get_super_admin_keyboard_menu
 from aiogram.types import PreCheckoutQuery
 router = Router()
 
@@ -217,9 +219,9 @@ async def back_to_admin_menu(callback: CallbackQuery, state: FSMContext):
     await callback.answer()
     user_id = callback.from_user.id
     if search_super_admin(user_id):
-        await callback.message.edit_text("Здравствуйте вы СУПЕР АДМИН ✅\nВ этой админке есть функции удаления", reply_markup=await super_admin_keyboard())
+        await callback.message.edit_text("Здравствуйте вы СУПЕР АДМИН ✅\nВ этой админке есть функции удаления", reply_markup=await get_super_admin_keyboard_menu())
     elif search_admin(user_id):
-        await callback.message.edit_text("Здравствуйте вы один из избранных админов ✅\nВ этой админке есть функции удаления", reply_markup=await get_admin_keyboard())
+        await callback.message.edit_text("Здравствуйте вы один из избранных админов ✅\nВ этой админке есть функции удаления", reply_markup=await get_admin_keyboard_menu())
     else:
         await callback.message.edit_text("Вы не админ ❌")
 
@@ -275,7 +277,7 @@ async def no_accept_delete_users(callback: CallbackQuery, state: FSMContext):
         if number == 0:
             await send.edit_text(
                 "Здравствуйте вы один из избранных админов ✅\nВ этой админке есть функции удаления",
-                reply_markup=await get_admin_keyboard())
+                reply_markup=await get_admin_keyboard_menu())
 
 @router.callback_query(F.data == "admin")
 async def admin_command(callback: CallbackQuery):
@@ -287,9 +289,9 @@ async def admin_command(callback: CallbackQuery):
     user_exists = search_admin(user_id)
     user_exists_super_admin = search_super_admin(user_id)
     if user_exists_super_admin:
-        await callback.message.edit_text("Здравствуйте вы СУПЕР АДМИН ✅\nВ этой админке есть функции удаления", reply_markup= await super_admin_keyboard())
+        await callback.message.edit_text("Здравствуйте вы СУПЕР АДМИН ✅\nВ этой админке есть функции удаления", reply_markup= await get_super_admin_keyboard_menu())
     elif user_exists:
-        await callback.message.edit_text("Здравствуйте вы один из избранных админов ✅\nВ этой админке есть функции удаления", reply_markup = await get_return_start_keyboard())
+        await callback.message.edit_text("Здравствуйте вы один из избранных админов ✅\nВ этой админке есть функции удаления", reply_markup = await get_admin_keyboard_menu())
     elif user_exists is False:
         await callback.message.edit_text("Вы не админ ❌", reply_markup = await get_return_start_keyboard())
 
@@ -406,6 +408,28 @@ async def buy_admin_command(callback: CallbackQuery, bot: Bot):
         ],
         reply_markup= payment_keyboard.as_markup()
     )
+
+@router.callback_query(F.data == "back_to_super_admin_menu")
+async def super_admin_menu(callback: CallbackQuery, state: FSMContext):
+    if search_super_admin(callback.from_user.id):
+        await callback.message.edit_text("👮 Меню Super Admin", reply_markup= await get_super_admin_keyboard_menu())
+    elif search_admin(callback.from_user.id):
+        await callback.message.edit_text("👮 Меню Admin", reply_markup= await get_admin_keyboard_menu())
+    else:
+        await callback.message.edit_text("❌ Вы не админ")
+
+@router.callback_query(F.data == "super_admin_or_admin_for_users")
+async def super_admin_keyboard_users(callback: CallbackQuery, state: FSMContext):
+    user_id = callback.from_user.id
+    result_blocked = search_blocked_user(user_id)
+    if result_blocked:
+        await callback.message.edit_text("❌ Вы заблокированы")
+        return
+    if search_super_admin(user_id) or search_admin(user_id):
+        await callback.message.edit_text("👮 Функции для взаимодействиями\n👤 С пользователями ", reply_markup = await func_admin_for_users(user_id))
+    else:
+        await callback.message.edit_text("❌ Вы не админ")
+
 
 # ОБРАБОТЧИКИ ОЖИДАНИЙ
 @router.message(wait.text)
