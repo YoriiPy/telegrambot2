@@ -218,12 +218,51 @@ async def back_to_admin_menu(callback: CallbackQuery, state: FSMContext):
         return
     await callback.answer()
     user_id = callback.from_user.id
-    if search_super_admin(user_id):
-        await callback.message.edit_text("Здравствуйте вы СУПЕР АДМИН ✅\nВ этой админке есть функции удаления", reply_markup=await get_super_admin_keyboard_menu())
-    elif search_admin(user_id):
-        await callback.message.edit_text("Здравствуйте вы один из избранных админов ✅\nВ этой админке есть функции удаления", reply_markup=await get_admin_keyboard_menu())
-    else:
-        await callback.message.edit_text("Вы не админ ❌")
+    try:
+        if search_super_admin(user_id):
+            if search_user(user_id):
+                await callback.message.edit_text(
+                    f"Ты уже есть в базе ❌\nЕсть информация о тебе в БД ✅\n\nВы СУПЕР АДМИН ✅",
+                    reply_markup=await get_admin_start_keyboard()
+                )
+                delete_user(user_id)
+            else:
+                await callback.message.edit_text(
+                    f"Ты уже есть в базе ❌\nЕсть информация о тебе в БД ✅\n\nВы СУПЕР АДМИН ✅",
+                    reply_markup=await get_admin_start_keyboard()
+                )
+        elif search_admin(user_id):
+            if search_user(user_id):
+                await callback.message.edit_text(
+                    f"Ты уже есть в базе ❌\nЕсть информация о тебе в БД ✅\n\nВы админ ✅",
+                    reply_markup=await get_admin_start_keyboard()
+                )
+                delete_user(user_id)
+            else:
+                await callback.message.edit_text(
+                    f"Ты уже есть в базе ❌\nЕсть информация о тебе в БД ✅\n\nВы админ ✅",
+                    reply_markup=await get_admin_start_keyboard()
+                )
+        elif search_user(user_id):
+            await callback.message.edit_text(
+                f"Ты уже есть в базе ❌\nЕсть информация о тебе в БД ✅",
+                reply_markup=await get_user_start_keyboard()
+            )
+        else:
+            result = add_user(callback.from_user.id, callback.from_user.full_name, callback.from_user.username)
+            print(search_super_admin(user_id))
+            await callback.message.edit_text(
+                result,
+                reply_markup=await get_user_start_keyboard()
+            )
+
+    except TelegramBadRequest as e:
+        if "message is not modified" in e.message:
+            await callback.answer()
+        else:
+            raise e
+
+
 
 @router.callback_query(F.data == "statistics")
 async def statistics(callback: CallbackQuery, state: FSMContext):
@@ -291,12 +330,16 @@ async def admin_command(callback: CallbackQuery):
 
     if user_exists_super_admin:
         keyboard = await get_super_admin_keyboard_menu()
-        keyboard.attach(await get_return_admin_keyboard())
-        await callback.message.edit_text("👮 Меню Super Admin", reply_markup=keyboard)
+        new_keyboard = InlineKeyboardBuilder.from_markup(keyboard)
+        new_keyboard.button(text="Назад ⬅️", callback_data="back_to_admin")
+        new_keyboard.adjust(1, 1, 1)
+        await callback.message.edit_text("👮 Меню Super Admin", reply_markup=new_keyboard.as_markup())
     elif user_exists:
         keyboard = await get_admin_keyboard_menu()
-        keyboard.attach(await get_return_admin_keyboard())
-        await callback.message.edit_text("👮 Меню Admin", reply_markup=keyboard)
+        new_keyboard = InlineKeyboardBuilder.from_markup(keyboard)
+        new_keyboard.button(text="Назад ⬅️", callback_data="back_to_admin").as_markup()
+        new_keyboard.adjust(1, 1, 1)
+        await callback.message.edit_text("👮 Меню Super Admin", reply_markup=new_keyboard.as_markup())
 
     elif user_exists is False:
         await callback.message.edit_text("Вы не админ ❌", reply_markup = await get_return_start_keyboard())

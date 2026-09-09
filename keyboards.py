@@ -8,19 +8,20 @@ async def get_admin_start_keyboard():
     admin_start_keyboard = InlineKeyboardBuilder()
     admin_start_keyboard = InlineKeyboardBuilder()
     admin_start_keyboard.button(text="👤 Профиль", callback_data="profile", style="success")
-    admin_start_keyboard.button(text='📝 Пользователи', callback_data="users", style="primary")
-    admin_start_keyboard.button(text="👮 Админ", callback_data="admin")
+    admin_start_keyboard.button(text='📝 Пользователи', callback_data="users", style="success")
+    admin_start_keyboard.button(text="👮 Админ", callback_data="admin", style="primary")
     admin_start_keyboard.adjust(2, 1)
 
     return admin_start_keyboard.as_markup()
 
 async def get_user_start_keyboard():
     user_start_keyboard = InlineKeyboardBuilder()
-    user_start_keyboard.button(text="👤 Профиль", callback_data="profile")
-    user_start_keyboard.button(text='📝 Пользователи', callback_data="users")
-    user_start_keyboard.button(text="‍💻 Поддержка", callback_data="support")
-    user_start_keyboard.button(text="👮 Купить админа", callback_data="buy_admin")
-    user_start_keyboard.button(text="💵 Платежи", callback_data="history_payments")
+    user_start_keyboard.button(text="👤 Профиль", callback_data="profile", style="success")
+    user_start_keyboard.button(text='📝 Пользователи', callback_data="users", style="success")
+    user_start_keyboard.button(text="💵 Платежи", callback_data="history_payments", style="success")
+    user_start_keyboard.button(text="‍💻 Поддержка", callback_data="support", style="primary")
+    user_start_keyboard.button(text="👮 Купить админа", callback_data="buy_admin", style="primary")
+
     user_start_keyboard.adjust(1, 1)
 
     return user_start_keyboard.as_markup()
@@ -28,16 +29,16 @@ async def get_user_start_keyboard():
 
 
 yes_or_no_keyboard = InlineKeyboardBuilder()
-yes_or_no_keyboard.button(text="Да ✅", callback_data="yes_delete_db")
-yes_or_no_keyboard.button(text="Нет ❌", callback_data="no_delete_db")
+yes_or_no_keyboard.button(text="Да ✅", callback_data="yes_delete_db", style="primary")
+yes_or_no_keyboard.button(text="Нет ❌", callback_data="no_delete_db", style="danger")
 yes_or_no_keyboard.button(text="Назад ⬅️", callback_data="back_to_admin")
 yes_or_no_keyboard.adjust(2, 1)
 
 async def get_super_admin_keyboard_menu():
     admin_keyboard = InlineKeyboardBuilder()
-    admin_keyboard.button(text="👤 Пользователи", callback_data="super_admin_or_admin_for_users")
-    admin_keyboard.button(text="👮 Админы", callback_data="super_admin_or_admin_for_admins")
-    admin_keyboard.button(text="🚫 Блокировки", callback_data="super_admin_or_admin_for_blocked_users")
+    admin_keyboard.button(text="👤 Пользователи", callback_data="super_admin_or_admin_for_users", style="success")
+    admin_keyboard.button(text="👮 Админы", callback_data="super_admin_or_admin_for_admins", style="primary")
+    admin_keyboard.button(text="🚫 Блокировки", callback_data="super_admin_or_admin_for_blocked_users", style="danger")
     admin_keyboard.button(text="📝 БД", callback_data="delete_all_users")
 
     admin_keyboard.adjust(1, 1, 1, 1)
@@ -45,8 +46,8 @@ async def get_super_admin_keyboard_menu():
 
 async def get_admin_keyboard_menu():
     super_admin_keyboard = InlineKeyboardBuilder()
-    super_admin_keyboard.button(text="👤 Пользователи", callback_data="super_admin_or_admin_for_users")
-    super_admin_keyboard.button(text="🚫 Блокировки", callback_data="super_admin_or_admin_for_blocked_users")
+    super_admin_keyboard.button(text="👤 Пользователи", callback_data="super_admin_or_admin_for_users", style="primary")
+    super_admin_keyboard.button(text="🚫 Блокировки", callback_data="super_admin_or_admin_for_blocked_users", style="danger")
     return super_admin_keyboard.as_markup()
 
 async def get_return_start_keyboard():
