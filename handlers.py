@@ -289,9 +289,9 @@ async def admin_command(callback: CallbackQuery):
     user_exists = search_admin(user_id)
     user_exists_super_admin = search_super_admin(user_id)
     if user_exists_super_admin:
-        await callback.message.edit_text("Здравствуйте вы СУПЕР АДМИН ✅\nВ этой админке есть функции удаления", reply_markup= await get_super_admin_keyboard_menu())
+        await callback.message.edit_text("👮 Меню Super Admin", reply_markup= await get_super_admin_keyboard_menu())
     elif user_exists:
-        await callback.message.edit_text("Здравствуйте вы один из избранных админов ✅\nВ этой админке есть функции удаления", reply_markup = await get_admin_keyboard_menu())
+        await callback.message.edit_text("👮 Меню Admin", reply_markup = await get_admin_keyboard_menu())
     elif user_exists is False:
         await callback.message.edit_text("Вы не админ ❌", reply_markup = await get_return_start_keyboard())
 
