@@ -795,8 +795,14 @@ async def unblock_users(message: Message, state: FSMContext, bot: Bot):
 
 @router.callback_query(F.data == "get_back_to_menu_admin_keyboard")
 async def edit_message_admin_keyboard(callback: CallbackQuery, state: FSMContext, bot: Bot):
-    await callback.message.edit_text("👮 Функции для взаимодействиями\n🔵 С админами", reply_markup=await func_admin_for_admins())
+    block_keyboard = InlineKeyboardBuilder.from_markup(await block_users())
+    back = InlineKeyboardBuilder.from_markup(await get_return_super_admin_admin_keyboard_block())
+    block_keyboard.attach(back)
+    block_keyboard.adjust(1, 1, 1)
+    if search_super_admin(callback.from_user.id):
+        await callback.message.edit_text("👮 Меню Super Admin", reply_markup=await get_super_admin_keyboard_menu())
+    elif search_user(callback.from_user.id):
+        await callback.message.edit_text("❌ Вы не админ")
+    elif search_admin(callback.from_user.id):
+        await callback.message.edit_text("👮 Меню Super Admin", reply_markup=await get_admin_keyboard_menu())
 
-@router.callback_query(F.data == "return_block_super_admin_keyboard")
-async def back_to_block_menu(callback: CallbackQuery, state: FSMContext, bot: Bot):
-    await callback.message.edit_text("🚫 Функция для взаимодействиями\n👤С блокировками пользователей", reply_markup=await block_users())

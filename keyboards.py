@@ -31,7 +31,7 @@ async def get_user_start_keyboard():
 yes_or_no_keyboard = InlineKeyboardBuilder()
 yes_or_no_keyboard.button(text="Да ✅", callback_data="yes_delete_db", style="primary")
 yes_or_no_keyboard.button(text="Нет ❌", callback_data="no_delete_db", style="danger")
-yes_or_no_keyboard.button(text="Назад ⬅️", callback_data="back_to_super_admin_menu", style="primary")
+yes_or_no_keyboard.button(text="Назад ⬅️", callback_data="back_to_super_admin_menu")
 yes_or_no_keyboard.adjust(2, 1)
 
 async def get_super_admin_keyboard_menu():
@@ -129,3 +129,4 @@ async def get_return_super_admin_block():
 async def get_return_super_admin_admin_keyboard_block():
     admin_keyboard = InlineKeyboardBuilder()
     admin_keyboard.button(text="⬅️ Назад️", callback_data="get_back_to_menu_admin_keyboard")
+    return admin_keyboard.as_markup()
