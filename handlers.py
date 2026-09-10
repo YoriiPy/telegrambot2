@@ -12,7 +12,7 @@ from classess import wait
 from keyboards import yes_or_no_keyboard, get_return_start_keyboard, get_admin_start_keyboard, \
     get_user_start_keyboard, get_super_admin_keyboard_menu, get_return_admin_keyboard, get_reply_admin_keyboard, \
     back_to_starts, get_admin_keyboard_menu, func_admin_for_users, \
-    get_super_admin_keyboard_menu, func_super_admin_for_admin_return, get_return_super_admin_block,  func_admin_for_admins, block_users
+    get_super_admin_keyboard_menu, func_super_admin_for_admin_return, get_return_super_admin_block,  func_admin_for_admins, block_users, get_return_super_admin_admin_keyboard_block
 from aiogram.types import PreCheckoutQuery
 router = Router()
 
@@ -767,7 +767,12 @@ async def return_super_admin_for_admin(callback: CallbackQuery, state: FSMContex
 # БЛОК
 @router.callback_query(F.data == "super_admin_or_admin_for_blocked_users")
 async def return_block(callback: CallbackQuery, state: FSMContext, bot: Bot):
-    await callback.message.edit_text("🚫 Функция для взаимодействиями\n👤С блокировками пользователей", reply_markup=await get_return_super_admin_block())
+    block = InlineKeyboardBuilder.from_markup(await block_users())
+    back_to_admin_menu = InlineKeyboardBuilder.from_markup(await get_return_super_admin_admin_keyboard_block())
+    block.attach(back_to_admin_menu)
+    block = block.adjust(1, 1, 1)
+    block = block.as_markup()
+    await callback.message.edit_text("🚫 Функция для взаимодействиями\n👤С блокировками пользователей", reply_markup=block)
 
 @router.callback_query(F.data == "unblock_user")
 async def unblock_user(callback: CallbackQuery, state: FSMContext, bot: Bot):
@@ -787,3 +792,11 @@ async def unblock_users(message: Message, state: FSMContext, bot: Bot):
         await message.edit_text("✅ Пользователь разблокирован")
     else:
         await message.edit_text("❌ Такого пользователя не существует")
+
+@router.callback_query(F.data == "get_back_to_menu_admin_keyboard")
+async def edit_message_admin_keyboard(callback: CallbackQuery, state: FSMContext, bot: Bot):
+    await callback.message.edit_text("👮 Функции для взаимодействиями\n🔵 С админами", reply_markup=await func_admin_for_admins())
+
+@router.callback_query(F.data == "return_block_super_admin_keyboard")
+async def back_to_block_menu(callback: CallbackQuery, state: FSMContext, bot: Bot):
+    await callback.message.edit_text("🚫 Функция для взаимодействиями\n👤С блокировками пользователей", reply_markup=await block_users())

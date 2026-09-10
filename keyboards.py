@@ -73,7 +73,7 @@ async def get_back_to_menu_admin_keyboard():
 
 async def get_return_admin_keyboard():
     return_admin_keyboard = InlineKeyboardBuilder()
-    return_admin_keyboard.button(text="Назад ⬅️", callback_data="super_admin_or_admin_for_users")
+    return_admin_keyboard.button(text="Назад ⬅️", callback_data="get_back_to_menu_admin_keyboard")
     return return_admin_keyboard.as_markup()
 
 async def get_reply_admin_keyboard():
@@ -101,10 +101,10 @@ async def func_admin_for_users(user_id):
 async def func_admin_for_admins():
     admin_keyboard = InlineKeyboardBuilder()
 
-    admin_keyboard.button(text="👮 Добавить Админа", callback_data="add_admin")
+    admin_keyboard.button(text="👮 Добавить Админа", callback_data="add_admin", style="primary")
     admin_keyboard.button(text="👮 Удаление админа", callback_data="delete_admin", style="primary")
     admin_keyboard.button(text="📢 Рассылка", callback_data="BroadCast_admin", style="primary")
-    admin_keyboard.button(text="➡️ Назад", callback_data="back_to_super_admin_menu", style="primary")
+    admin_keyboard.button(text="➡️ Назад", callback_data="back_to_super_admin_menu", style="success")
     admin_keyboard.adjust(1, 1, 1, 1)
     return admin_keyboard.as_markup()
 
@@ -124,3 +124,8 @@ async def block_users():
 async def get_return_super_admin_block():
     return_super_admin_keyboard = InlineKeyboardBuilder()
     return_super_admin_keyboard.button(text="➡️ Назад", callback_data="return_block_super_admin_keyboard")
+    return return_super_admin_keyboard.as_markup()
+
+async def get_return_super_admin_admin_keyboard_block():
+    admin_keyboard = InlineKeyboardBuilder()
+    admin_keyboard.button(text="⬅️ Назад️", callback_data="get_back_to_menu_admin_keyboard")
