@@ -7,12 +7,12 @@ from aiogram.filters import Command, CommandObject
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from DataBase import add_user, cursor, get_user, update_user, delete_user, delete_all_users, search_user, add_admin, \
     delete_admin, search_admin, all_users, all_admins, search_super_admin, add_blocked_user, all_blocked_users, \
-    add_payment, get_operation_id, get_short_key, get_history_payments, search_blocked_user
+    add_payment, get_operation_id, get_short_key, get_history_payments, search_blocked_user, unblock_blocked_user
 from classess import wait
 from keyboards import yes_or_no_keyboard, get_return_start_keyboard, get_admin_start_keyboard, \
     get_user_start_keyboard, get_super_admin_keyboard_menu, get_return_admin_keyboard, get_reply_admin_keyboard, \
     back_to_starts, get_admin_keyboard_menu, func_admin_for_users, \
-    get_super_admin_keyboard_menu
+    get_super_admin_keyboard_menu, func_super_admin_for_admin_return, get_return_super_admin_block,  func_admin_for_admins, block_users
 from aiogram.types import PreCheckoutQuery
 router = Router()
 
@@ -135,7 +135,7 @@ async def back_to_start(callback: CallbackQuery):
         return
     await callback.answer()
     user_id = callback.from_user.id
-    user = search_admin(user_id)
+    user = search_user(user_id)
     admin = search_admin(user_id)
     super_admin = search_super_admin(user_id)
 
@@ -425,7 +425,7 @@ async def block_user(callback: CallbackQuery, state: FSMContext):
     str_users = ""
     for user in users:
         str_users += f"👤 ID: {user[0]}\n📅 Дата: {user[1]}\n\n"
-    await callback.message.edit_text(f"Отправьте ID для блокировки пользователя 👤\nСписок заблокированных пользователей:\n\n{str_users}")
+    await callback.message.edit_text(f"Отправьте ID для блокировки пользователя 👤\nСписок заблокированных пользователей:\n\n{str_users}", reply_markup= await get_return_super_admin_block())
     await state.set_state(wait.message_block_user)
 
 @router.callback_query(F.data == "buy_admin")
@@ -475,7 +475,7 @@ async def super_admin_keyboard_users(callback: CallbackQuery, state: FSMContext)
         await callback.message.edit_text("❌ Вы заблокированы")
         return
     if search_super_admin(user_id) or search_admin(user_id):
-        await callback.message.edit_text("👮 Функции для взаимодействиями\n👤 С пользователями ", reply_markup = await func_admin_for_users(user_id))
+        await callback.message.edit_text("👮 Функции для взаимодействиями\n👤 С пользователями ", reply_markup = await func_admin_for_users(callback.from_user.id))
     else:
         await callback.message.edit_text("❌ Вы не админ")
 
@@ -685,6 +685,9 @@ async def broadcast_to_admin(message: Message, state: FSMContext, bot: Bot):
 
     await state.clear()
 
+@router.callback_query(F.data == "super_admin_for_admins")
+async def super_admin_for_admins(callback: CallbackQuery):
+    await callback.message.edit_text("👮 Функции для взаимодействиями\n🔵 С админами", reply_markup=await func_admin_for_admins())
 
 #ОПЛАТА
 @router.pre_checkout_query()
@@ -746,8 +749,41 @@ async def history_payments_handler(callback: CallbackQuery, state: FSMContext, b
     for payment in history_payments:
         text += f"Дата: {payment[2]}\nКлюч: {payment[3]}\n\n"
     if history_payments:
-        await callback.message.edit_text(text, reply_markup = await back_to_start())
+        await callback.message.edit_text(text, reply_markup = await func_super_admin_for_admin_return(user_id))
     else:
         await callback.message.edit_text("У вас нету ни одного платежа ❌💵")
 
 
+
+@router.callback_query(F.data == "super_admin_or_admin_for_users")
+async def return_super_admin_for_admin(callback: CallbackQuery, state: FSMContext, bot: Bot):
+    if search_super_admin(callback.from_user.id):
+        await callback.message.edit_text("👮 Функции для взаимодействиями🔵 С админами", reply_markup=await func_admin_for_users(callback.from_user.id))
+    elif search_user(callback.from_user.id):
+        await callback.message.edit_text("❌ Вы не супер админ", reply_markup=await get_user_start_keyboard())
+    elif search_admin(callback.from_user.id):
+        await callback.message.edit_text("❌ Вы админ а нужно быть супер админом")
+
+# БЛОК
+@router.callback_query(F.data == "super_admin_or_admin_for_blocked_users")
+async def return_block(callback: CallbackQuery, state: FSMContext, bot: Bot):
+    await callback.message.edit_text("🚫 Функция для взаимодействиями\n👤С блокировками пользователей", reply_markup=await get_return_super_admin_block())
+
+@router.callback_query(F.data == "unblock_user")
+async def unblock_user(callback: CallbackQuery, state: FSMContext, bot: Bot):
+    if search_super_admin(callback.from_user.id):
+        await callback.message.edit_text("👤 Отправьте ID для разблокировки", reply_markup=await get_return_super_admin_block())
+        await state.set_state(wait.unblock_user)
+    elif search_user(callback.from_user.id):
+        await callback.message.edit_text("❌ Вы не супер админ", reply_markup=await get_user_start_keyboard())
+    elif search_admin(callback.from_user.id):
+        await callback.message.edit_text("❌ Вы не супер админ", reply_markup= await get_admin_start_keyboard())
+
+
+@router.message(wait.unblock_user)
+async def unblock_users(message: Message, state: FSMContext, bot: Bot):
+    if search_user(message.text):
+        unblock_blocked_user(message.text)
+        await message.edit_text("✅ Пользователь разблокирован")
+    else:
+        await message.edit_text("❌ Такого пользователя не существует")
