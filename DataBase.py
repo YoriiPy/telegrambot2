@@ -100,14 +100,12 @@ def search_blocked_user(user_id):
     return cursor.fetchall()
 
 def delete_blocked_user(user_id):
-    result = search_user(user_id)
-    if result:
-        cursor.execute("DELETE * FROM blocked_users WHERE user_id = ?", (user_id, ))
+    cursor.execute("DELETE FROM blocked_users WHERE user_id = ?", (user_id, ))
+    db.commit()
 
 def unblock_blocked_user(user_id):
-    if search_user(user_id):
-        cursor.execute("DELETE * FROM blocked_users WHERE user_id = ?", (user_id,))
-        db.commit()
+    cursor.execute("DELETE FROM blocked_users WHERE user_id = ?", (user_id,))
+    db.commit()
 
 # ИСТОРИЯ ОПЛАТ
 cursor.execute("""CREATE TABLE IF NOT EXISTS payments (

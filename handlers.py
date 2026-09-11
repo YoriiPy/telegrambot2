@@ -18,7 +18,7 @@ router = Router()
 
 #ОБРАБОТЧИКИ КОМАНД
 @router.message(Command("start"))
-async def start_command(message: Message):
+async def start_command(message: Message, state: FSMContext):
     user_id = message.from_user.id
     result = search_blocked_user(user_id)
     if result:
@@ -209,7 +209,7 @@ async def admin_search_profile_user(callback: CallbackQuery, state: FSMContext):
     else:
         await callback.message.edit_text("Вы уже исключены из админов ❌")
 
-@router.callback_query(F.data == "back_to_admin")
+@router.callback_query(F.data == "back_to_start_admin")
 async def back_to_admin_menu(callback: CallbackQuery, state: FSMContext):
     user_id = callback.from_user.id
     result = search_blocked_user(user_id)
@@ -325,23 +325,17 @@ async def admin_command(callback: CallbackQuery):
     if result:
         await callback.message.edit_text("Вы заблокированы ❌")
         return
-    user_exists = search_admin(user_id)
-    user_exists_super_admin = search_super_admin(user_id)
+    admin_result = search_admin(user_id)
+    super_admin_result = search_super_admin(user_id)
 
-    if user_exists_super_admin:
+    if super_admin_result:
         keyboard = await get_super_admin_keyboard_menu()
-        new_keyboard = InlineKeyboardBuilder.from_markup(keyboard)
-        new_keyboard.button(text="Назад ⬅️", callback_data="back_to_admin")
-        new_keyboard.adjust(1, 1, 1)
-        await callback.message.edit_text("👮 Меню Super Admin", reply_markup=new_keyboard.as_markup())
-    elif user_exists:
+        await callback.message.edit_text("👮 Меню Super Admin", reply_markup=keyboard)
+    elif admin_result:
         keyboard = await get_admin_keyboard_menu()
-        new_keyboard = InlineKeyboardBuilder.from_markup(keyboard)
-        new_keyboard.button(text="Назад ⬅️", callback_data="back_to_admin").as_markup()
-        new_keyboard.adjust(1, 1, 1)
-        await callback.message.edit_text("👮 Меню Super Admin", reply_markup=new_keyboard.as_markup())
+        await callback.message.edit_text("👮 Меню Super Admin", reply_markup=keyboard)
 
-    elif user_exists is False:
+    else:
         await callback.message.edit_text("Вы не админ ❌", reply_markup = await get_return_start_keyboard())
 
 
@@ -355,8 +349,7 @@ async def delete_admin_command(callback: CallbackQuery, state: FSMContext):
     if search_super_admin(user_id):
         await callback.message.edit_text("Отправьте ID того админа которого хотите удалить 👤", reply_markup= await get_return_admin_keyboard())
         await state.set_state(wait.delete_admin)
-    elif search_admin(user_id):
-        await callback.message.edit_text("Отправьте ID того админа которого хотите удалить 👤", reply_markup = await get_return_admin_keyboard())
+
     else:
         await callback.message.edit_text("Вы не админ ❌")
 
@@ -476,6 +469,7 @@ async def super_admin_keyboard_users(callback: CallbackQuery, state: FSMContext)
         return
     if search_super_admin(user_id) or search_admin(user_id):
         await callback.message.edit_text("👮 Функции для взаимодействиями\n👤 С пользователями ", reply_markup = await func_admin_for_users(callback.from_user.id))
+
     else:
         await callback.message.edit_text("❌ Вы не админ")
 
@@ -767,12 +761,7 @@ async def return_super_admin_for_admin(callback: CallbackQuery, state: FSMContex
 # БЛОК
 @router.callback_query(F.data == "super_admin_or_admin_for_blocked_users")
 async def return_block(callback: CallbackQuery, state: FSMContext, bot: Bot):
-    block = InlineKeyboardBuilder.from_markup(await block_users())
-    back_to_admin_menu = InlineKeyboardBuilder.from_markup(await get_return_super_admin_admin_keyboard_block())
-    block.attach(back_to_admin_menu)
-    block = block.adjust(1, 1, 1)
-    block = block.as_markup()
-    await callback.message.edit_text("🚫 Функция для взаимодействиями\n👤С блокировками пользователей", reply_markup=block)
+    await callback.message.edit_text("🚫 Функция для взаимодействиями\n👤С блокировками пользователей", reply_markup=await block_users())
 
 @router.callback_query(F.data == "unblock_user")
 async def unblock_user(callback: CallbackQuery, state: FSMContext, bot: Bot):
@@ -795,14 +784,41 @@ async def unblock_users(message: Message, state: FSMContext, bot: Bot):
 
 @router.callback_query(F.data == "get_back_to_menu_admin_keyboard")
 async def edit_message_admin_keyboard(callback: CallbackQuery, state: FSMContext, bot: Bot):
-    block_keyboard = InlineKeyboardBuilder.from_markup(await block_users())
-    back = InlineKeyboardBuilder.from_markup(await get_return_super_admin_admin_keyboard_block())
-    block_keyboard.attach(back)
-    block_keyboard.adjust(1, 1, 1)
     if search_super_admin(callback.from_user.id):
-        await callback.message.edit_text("👮 Меню Super Admin", reply_markup=await get_super_admin_keyboard_menu())
-    elif search_user(callback.from_user.id):
-        await callback.message.edit_text("❌ Вы не админ")
+        keyboard = await get_super_admin_keyboard_menu()
+        await callback.message.edit_text("👮 Меню Super Admin", reply_markup=keyboard)
     elif search_admin(callback.from_user.id):
-        await callback.message.edit_text("👮 Меню Super Admin", reply_markup=await get_admin_keyboard_menu())
+        keyboard = await get_admin_keyboard_menu()
+        await callback.message.edit_text("👮 Меню Admin", reply_markup=keyboard)
+    else:
+        await callback.message.edit_text("❌ Вы не админ")
 
+@router.callback_query(F.data == "return_block_super_admin_keyboard")
+async def get_block_menu(callback: CallbackQuery, state: FSMContext, bot: Bot):
+    keyboard = InlineKeyboardBuilder.from_markup(await block_users())
+
+    await callback.message.edit_text("🚫 Функция для взаимодействиями\n👤С блокировками пользователей", reply_markup=keyboard.as_markup())
+
+@router.message(wait.unblock_user)
+async def unblock_user(message: Message, state: FSMContext, bot: Bot):
+    user_id = message.text
+    if search_user(user_id):
+        unblock_blocked_user(user_id)
+        await message.answer("✅ Пользователь успешно разблокирован")
+    else:
+        await message.answer("❌ Этот пользователь не заблокирован\n👤 Либо его не существует")
+
+@router.callback_query(F.data == "back_to_starts")
+async def start_callback(callback: CallbackQuery, state: FSMContext, bot: Bot):
+    user_id = callback.from_user.id
+    result = search_blocked_user(user_id)
+    if result:
+        await callback.answer("Вы заблокированы ❌")
+        return
+    user_id = callback.from_user.id
+    if search_super_admin(user_id):
+        await callback.message.edit_text(f"Ты уже есть в базе ❌\nЕсть информация о тебе в БД ✅\n\nВы СУПЕР АДМИН ✅", reply_markup=await get_admin_start_keyboard())
+    elif search_admin(user_id):
+        await callback.message.edit_text(f"Ты уже есть в базе ❌\nЕсть информация о тебе в БД ✅\n\nВы админ ✅", reply_markup = await get_admin_start_keyboard())
+    elif search_user(user_id):
+        await callback.message.edit_text(f"Ты уже есть в базе ❌\nЕсть информация о тебе в БД ✅", reply_markup= await get_user_start_keyboard())
