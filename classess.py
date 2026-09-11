@@ -14,3 +14,4 @@ class wait(StatesGroup):
     reply_message_admin = State()
     message_block_user = State()
     number_payment = State()
+    unblock_user = State()
