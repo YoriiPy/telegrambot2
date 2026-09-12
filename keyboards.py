@@ -131,3 +131,7 @@ async def get_return_super_admin_admin_keyboard_block():
     admin_keyboard.button(text="⬅️ Назад️", callback_data="get_back_to_menu_admin_keyboard")
     return admin_keyboard.as_markup()
 
+async def get_return_admin_for_admins():
+    return_admin_keyboard = InlineKeyboardBuilder()
+    return_admin_keyboard.button(text="➡️ Назад", callback_data="super_admin_for_admins")
+    return return_admin_keyboard.as_markup()

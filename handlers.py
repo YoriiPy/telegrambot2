@@ -12,7 +12,8 @@ from classess import wait
 from keyboards import yes_or_no_keyboard, get_return_start_keyboard, get_admin_start_keyboard, \
     get_user_start_keyboard, get_super_admin_keyboard_menu, get_return_admin_keyboard, get_reply_admin_keyboard, \
     back_to_starts, get_admin_keyboard_menu, func_admin_for_users, \
-    get_super_admin_keyboard_menu, func_super_admin_for_admin_return, get_return_super_admin_block,  func_admin_for_admins, block_users, get_return_super_admin_admin_keyboard_block
+    get_super_admin_keyboard_menu, func_super_admin_for_admin_return, get_return_super_admin_block, \
+    func_admin_for_admins, block_users, get_return_super_admin_admin_keyboard_block, get_return_admin_for_admins
 from aiogram.types import PreCheckoutQuery
 router = Router()
 
@@ -347,7 +348,7 @@ async def delete_admin_command(callback: CallbackQuery, state: FSMContext):
         await callback.message.edit_text("Вы заблокированы ❌")
         return
     if search_super_admin(user_id):
-        await callback.message.edit_text("Отправьте ID того админа которого хотите удалить 👤", reply_markup= await get_return_admin_keyboard())
+        await callback.message.edit_text("Отправьте ID того админа которого хотите удалить 👤", reply_markup= await get_return_admin_for_admins())
         await state.set_state(wait.delete_admin)
 
     else:
@@ -362,7 +363,7 @@ async def add_admin_func(callback: CallbackQuery, state: FSMContext):
         await callback.message.edit_text("Вы заблокированы ❌")
         return
     if search_super_admin(user_id):
-        await callback.message.edit_text("Отправьте ID чтобы добавить юзера в админы 👤", reply_markup = await get_return_admin_keyboard())
+        await callback.message.edit_text("Отправьте ID чтобы добавить юзера в админы 👤", reply_markup = await get_return_admin_for_admins())
         await state.set_state(wait.new_admin)
     else:
         await callback.message.edit_text(f"Вы не СУПЕР АДМИН 👮", reply_markup = await get_return_admin_keyboard())
@@ -379,7 +380,7 @@ async def broadcast_admin_command(callback: CallbackQuery, state: FSMContext):
     if result:
         await callback.message.edit_text("Вы заблокированы ❌")
         return
-    await callback.message.edit_text("Отправьте сообщение которое хотите отправить админам 👤✅", reply_markup= await get_return_admin_keyboard())
+    await callback.message.edit_text("Отправьте сообщение которое хотите отправить админам 👤✅", reply_markup= await get_return_admin_for_admins())
     await state.update_data(messages=callback.message.message_id)
     await state.set_state(wait.broadcast_text_admin)
 

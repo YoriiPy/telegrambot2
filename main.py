@@ -10,7 +10,7 @@ import asyncio
 
 
 
-load_dotenv(r"D:\projects\telegram\telegrambot2\TOKEN.env")
+load_dotenv(r"D:\projects\telegram\telegrambot2\ruslangay.env")
 
 TOKEN = getenv("BOT_TOKEN")
 
