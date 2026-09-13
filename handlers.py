@@ -13,7 +13,8 @@ from keyboards import yes_or_no_keyboard, get_return_start_keyboard, get_admin_s
     get_user_start_keyboard, get_super_admin_keyboard_menu, get_return_admin_keyboard, get_reply_admin_keyboard, \
     back_to_starts, get_admin_keyboard_menu, func_admin_for_users, \
     get_super_admin_keyboard_menu, func_super_admin_for_admin_return, get_return_super_admin_block, \
-    func_admin_for_admins, block_users, get_return_super_admin_admin_keyboard_block, get_return_admin_for_admins
+    func_admin_for_admins, block_users, get_return_super_admin_admin_keyboard_block, get_return_admin_for_admins, \
+    get_return_admin_for_users
 from aiogram.types import PreCheckoutQuery
 router = Router()
 
@@ -51,6 +52,7 @@ async def start_command(message: Message, state: FSMContext):
 
 @router.callback_query(F.data == "users")
 async def users(callback: CallbackQuery):
+    await callback.answer()
     user_id = callback.from_user.id
     result = search_blocked_user(user_id)
     if result:
@@ -77,6 +79,7 @@ async def users(callback: CallbackQuery):
 #ОБРАБОТЧИКИ CALLBACK
 @router.callback_query(F.data == "profile")
 async def profile_callback(callback: CallbackQuery):
+    await callback.answer()
     user_id = callback.from_user.id
     result = search_blocked_user(user_id)
     if result:
@@ -129,6 +132,7 @@ async def profile_callback(callback: CallbackQuery):
 
 @router.callback_query(F.data == "back_to_start")
 async def back_to_start(callback: CallbackQuery):
+    await callback.answer()
     user_id = callback.from_user.id
     result = search_blocked_user(user_id)
     if result:
@@ -161,6 +165,7 @@ async def wait_text_name(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "delete_users")
 async def send_id_admin(callback: CallbackQuery, state: FSMContext):
+    await callback.answer()
     user_id = callback.from_user.id
     result = search_blocked_user(user_id)
     if result:
@@ -168,16 +173,18 @@ async def send_id_admin(callback: CallbackQuery, state: FSMContext):
         return
     await callback.answer()
     user_id = callback.from_user.id
-    user = search_admin(user_id)
+    admin = search_admin(user_id)
+    super_admin = search_super_admin(user_id)
     await callback.answer()
-    if user:
+    if admin or super_admin:
         await state.set_state(wait.text_2)
-        await state.update_data(text_id=await callback.message.edit_text("Отправьте ID пользователя 👤\nКоторого желаете удалить ✅", reply_markup = await get_return_admin_keyboard()))
+        await state.update_data(text_id=await callback.message.edit_text("Отправьте ID пользователя 👤\nКоторого желаете удалить ✅", reply_markup = await get_return_admin_for_users()))
     else:
         await callback.message.edit_text("Вы уже исключены из админов ❌")
 
 @router.callback_query(F.data == "delete_all_users")
 async def delete_full_users(callback: CallbackQuery, state: FSMContext):
+    await callback.answer()
     user_id = callback.from_user.id
     result = search_blocked_user(user_id)
     if result:
@@ -193,6 +200,7 @@ async def delete_full_users(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "search_user_profile")
 async def admin_search_profile_user(callback: CallbackQuery, state: FSMContext):
+    await callback.answer()
     user_id = callback.from_user.id
     result = search_blocked_user(user_id)
     if result:
@@ -203,7 +211,7 @@ async def admin_search_profile_user(callback: CallbackQuery, state: FSMContext):
     back_to_admin_keyboard = InlineKeyboardBuilder()
     back_to_admin_keyboard.button(text="Назад ⬅️", callback_data="back_to_admin")
     if search_admin(user_id) or search_super_admin(user_id):
-        send_message = await callback.message.edit_text("Отправьте ID пользователя 👤\nДля просмотра его профиля 🔎", reply_markup = await get_return_admin_keyboard())
+        send_message = await callback.message.edit_text("Отправьте ID пользователя 👤\nДля просмотра его профиля 🔎", reply_markup = await get_return_admin_for_users())
         await state.set_state(wait.text_3)
         await state.update_data(text=send_message.message_id)
 
@@ -212,6 +220,7 @@ async def admin_search_profile_user(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "back_to_start_admin")
 async def back_to_admin_menu(callback: CallbackQuery, state: FSMContext):
+    await callback.answer()
     user_id = callback.from_user.id
     result = search_blocked_user(user_id)
     if result:
@@ -267,6 +276,7 @@ async def back_to_admin_menu(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "statistics")
 async def statistics(callback: CallbackQuery, state: FSMContext):
+    await callback.answer()
     user_id = callback.from_user.id
     result = search_blocked_user(user_id)
     if result:
@@ -284,6 +294,7 @@ async def statistics(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "yes_delete_db")
 async def accept_delete_users(callback: CallbackQuery, state: FSMContext):
+    await callback.answer()
     user_id = callback.from_user.id
     result = search_blocked_user(user_id)
     if result:
@@ -300,6 +311,7 @@ async def accept_delete_users(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "no_delete_db")
 async def no_accept_delete_users(callback: CallbackQuery, state: FSMContext):
+    await callback.answer()
     user_id = callback.from_user.id
     result = search_blocked_user(user_id)
     if result:
@@ -321,6 +333,7 @@ async def no_accept_delete_users(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "admin")
 async def admin_command(callback: CallbackQuery):
+    await callback.answer()
     user_id = callback.from_user.id
     result = search_blocked_user(user_id)
     if result:
@@ -342,6 +355,7 @@ async def admin_command(callback: CallbackQuery):
 
 @router.callback_query(F.data == "delete_admin")
 async def delete_admin_command(callback: CallbackQuery, state: FSMContext):
+    await callback.answer()
     user_id = callback.from_user.id
     result = search_blocked_user(user_id)
     if result:
@@ -357,6 +371,7 @@ async def delete_admin_command(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "add_admin")
 async def add_admin_func(callback: CallbackQuery, state: FSMContext):
+    await callback.answer()
     user_id = callback.from_user.id
     result = search_blocked_user(user_id)
     if result:
@@ -370,11 +385,13 @@ async def add_admin_func(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "BroadCast")
 async def broadcast_command(callback: CallbackQuery, state: FSMContext):
+    await callback.answer()
     await state.update_data(messages = await callback.message.edit_text("Отправьте сообщение для рассылки 📢", reply_markup=await get_return_admin_keyboard()))
     await state.set_state(wait.broadcast_text)
 
 @router.callback_query(F.data == "BroadCast_admin")
 async def broadcast_admin_command(callback: CallbackQuery, state: FSMContext):
+    await callback.answer()
     user_id = callback.from_user.id
     result = search_blocked_user(user_id)
     if result:
@@ -388,6 +405,7 @@ async def broadcast_admin_command(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "support")
 async def support_command(callback: CallbackQuery, state: FSMContext):
+    await callback.answer()
     user_id = callback.from_user.id
     result = search_blocked_user(user_id)
     if result:
@@ -400,6 +418,7 @@ async def support_command(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "reply_admin")
 async def reply_admin(callback: CallbackQuery, state: FSMContext):
+    await callback.answer()
     user_id = callback.from_user.id
     result = search_blocked_user(user_id)
     if result:
@@ -410,6 +429,7 @@ async def reply_admin(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "block_user")
 async def block_user(callback: CallbackQuery, state: FSMContext):
+    await callback.answer()
     user_id = callback.from_user.id
     result = search_blocked_user(user_id)
     if result:
@@ -420,10 +440,12 @@ async def block_user(callback: CallbackQuery, state: FSMContext):
     for user in users:
         str_users += f"👤 ID: {user[0]}\n📅 Дата: {user[1]}\n\n"
     await callback.message.edit_text(f"Отправьте ID для блокировки пользователя 👤\nСписок заблокированных пользователей:\n\n{str_users}", reply_markup= await get_return_super_admin_block())
+    await state.update_data(message_id=callback.message.message_id)
     await state.set_state(wait.message_block_user)
 
 @router.callback_query(F.data == "buy_admin")
 async def buy_admin_command(callback: CallbackQuery, bot: Bot):
+    await callback.answer()
     user_id = callback.from_user.id
     result = search_blocked_user(user_id)
     if result:
@@ -454,6 +476,7 @@ async def buy_admin_command(callback: CallbackQuery, bot: Bot):
 
 @router.callback_query(F.data == "back_to_super_admin_menu")
 async def super_admin_menu(callback: CallbackQuery, state: FSMContext):
+    await callback.answer()
     if search_super_admin(callback.from_user.id):
         await callback.message.edit_text("👮 Меню Super Admin", reply_markup= await get_super_admin_keyboard_menu())
     elif search_admin(callback.from_user.id):
@@ -463,13 +486,14 @@ async def super_admin_menu(callback: CallbackQuery, state: FSMContext):
 
 @router.callback_query(F.data == "super_admin_or_admin_for_users")
 async def super_admin_keyboard_users(callback: CallbackQuery, state: FSMContext):
+    await callback.answer()
     user_id = callback.from_user.id
     result_blocked = search_blocked_user(user_id)
     if result_blocked:
         await callback.message.edit_text("❌ Вы заблокированы")
         return
     if search_super_admin(user_id) or search_admin(user_id):
-        await callback.message.edit_text("👮 Функции для взаимодействиями\n👤 С пользователями ", reply_markup = await func_admin_for_users(callback.from_user.id))
+        await callback.message.edit_text("👮 Функции для взаимодействиями\n👤 С пользователями ", reply_markup = await func_admin_for_users())
 
     else:
         await callback.message.edit_text("❌ Вы не админ")
@@ -517,29 +541,57 @@ async def delete_users(message: Message, state: FSMContext):
 
 @router.message(wait.text_3)
 async def send_admin_user(message: Message, bot: Bot, state: FSMContext):
-    user_id = message.from_user.id
-    result = search_blocked_user(user_id)
-    if result:
-        await message.edit_text("Вы заблокированы ❌")
+    # 1. Удаляем введенный админом текст, чтобы в чате не оставалось следов
+    try:
+        await message.delete()
+    except TelegramBadRequest:
+        pass
+
+    user_id_sender = message.from_user.id
+    if search_blocked_user(user_id_sender):
         return
-    string = ""
-    user_id = message.text
-    search_user(user_id)
-    answers = cursor.fetchone()
+
+    # 2. Достаем ID сообщения меню
+    data = await state.get_data()
+    message_bots = data.get("text")
+
+    target_id = message.text.strip()
+    result = search_user(target_id)
+
     back_to_admin_keyboard = InlineKeyboardBuilder()
-    back_to_admin_keyboard.button(text="Назад ⬅️", callback_data="back_to_admin")
-    state_data = await state.get_data()
-    message_bots = state_data.get("text")
-    print(message_bots)
-    await message.delete()
-    await bot.delete_message(message.chat.id, message_bots)
-    if answers:
-        user = answers
-        string += f"Имя | Фамилия: {user[0]}\n"
-        string += f"Username: @{user[2]}\n"
-        await message.answer(string, reply_markup=back_to_admin_keyboard.as_markup())
+    back_to_admin_keyboard.button(text="Назад ⬅️", callback_data="super_admin_or_admin_for_users")
+
+    # 3. Формируем текст ответа
+    if result:
+        string = ""
+        for user in result:
+            string += f"👤 Профиль найден:\n\n"
+            string += f"Имя | Фамилия: {user[1]}\n"  # user[1] — это имя
+            string += f"Username: @{user[2]}\n"     # user[2] — это юзернейм
+            string += f"ID: <code>{user[0]}</code>\n\n" # user[0] — это ID
+        string += "🔎 Введите следующий ID для поиска:"
     else:
-        await message.answer("Такого пользователя не существует ❌", reply_markup=back_to_admin_keyboard.as_markup())
+        string = "Такого пользователя не существует ❌\n\n🔎 Введите другой ID для поиска:"
+
+    # 4. Редактируем сообщение (с защитой от повторного ввода того же ID)
+    if message_bots:
+        try:
+            await bot.edit_message_text(
+                text=string,
+                chat_id=message.chat.id,
+                message_id=message_bots,
+                reply_markup=back_to_admin_keyboard.as_markup(),
+                parse_mode="HTML"
+            )
+        except TelegramBadRequest as e:
+            if "message is not modified" not in e.message:
+                new_msg = await message.answer(
+                    text=string,
+                    reply_markup=back_to_admin_keyboard.as_markup(),
+                    parse_mode="HTML"
+                )
+                await state.update_data(text=new_msg.message_id)
+
 
 @router.message(wait.new_admin)
 async def add_admins(message: Message, state: FSMContext):
@@ -622,6 +674,10 @@ async def reply_messages_admin(message: Message, state: FSMContext, bot: Bot):
 
 @router.message(wait.message_block_user)
 async def message_block_user(message: Message, state: FSMContext, bot: Bot):
+    data = await state.get_data()
+    message_id = data.get("message_id")
+    await message.delete()
+    await bot.delete_message(chat_id=message.chat.id, message_id=message_id)
     user_id = message.from_user.id
     result = search_blocked_user(user_id)
     if result:
@@ -682,6 +738,7 @@ async def broadcast_to_admin(message: Message, state: FSMContext, bot: Bot):
 
 @router.callback_query(F.data == "super_admin_for_admins")
 async def super_admin_for_admins(callback: CallbackQuery):
+    await callback.answer()
     await callback.message.edit_text("👮 Функции для взаимодействиями\n🔵 С админами", reply_markup=await func_admin_for_admins())
 
 #ОПЛАТА
@@ -734,6 +791,7 @@ async def number_payment_handler(message: Message, state: FSMContext, bot: Bot):
 
 @router.callback_query(F.data == "history_payments")
 async def history_payments_handler(callback: CallbackQuery, state: FSMContext, bot: Bot):
+    await callback.answer()
     user_id = callback.from_user.id
     result = search_blocked_user(user_id)
     if result:
@@ -752,8 +810,9 @@ async def history_payments_handler(callback: CallbackQuery, state: FSMContext, b
 
 @router.callback_query(F.data == "super_admin_or_admin_for_users")
 async def return_super_admin_for_admin(callback: CallbackQuery, state: FSMContext, bot: Bot):
+    await callback.answer()
     if search_super_admin(callback.from_user.id):
-        await callback.message.edit_text("👮 Функции для взаимодействиями🔵 С админами", reply_markup=await func_admin_for_users(callback.from_user.id))
+        await callback.message.edit_text("👮 Функции для взаимодействиями🔵 С админами", reply_markup=await func_admin_for_users())
     elif search_user(callback.from_user.id):
         await callback.message.edit_text("❌ Вы не супер админ", reply_markup=await get_user_start_keyboard())
     elif search_admin(callback.from_user.id):
@@ -762,12 +821,16 @@ async def return_super_admin_for_admin(callback: CallbackQuery, state: FSMContex
 # БЛОК
 @router.callback_query(F.data == "super_admin_or_admin_for_blocked_users")
 async def return_block(callback: CallbackQuery, state: FSMContext, bot: Bot):
+    await callback.answer()
     await callback.message.edit_text("🚫 Функция для взаимодействиями\n👤С блокировками пользователей", reply_markup=await block_users())
+
 
 @router.callback_query(F.data == "unblock_user")
 async def unblock_user(callback: CallbackQuery, state: FSMContext, bot: Bot):
+    await callback.answer()
     if search_super_admin(callback.from_user.id):
         await callback.message.edit_text("👤 Отправьте ID для разблокировки", reply_markup=await get_return_super_admin_block())
+        await state.update_data(message_id=callback.message.message_id)
         await state.set_state(wait.unblock_user)
     elif search_user(callback.from_user.id):
         await callback.message.edit_text("❌ Вы не супер админ", reply_markup=await get_user_start_keyboard())
@@ -775,16 +838,11 @@ async def unblock_user(callback: CallbackQuery, state: FSMContext, bot: Bot):
         await callback.message.edit_text("❌ Вы не супер админ", reply_markup= await get_admin_start_keyboard())
 
 
-@router.message(wait.unblock_user)
-async def unblock_users(message: Message, state: FSMContext, bot: Bot):
-    if search_user(message.text):
-        unblock_blocked_user(message.text)
-        await message.edit_text("✅ Пользователь разблокирован")
-    else:
-        await message.edit_text("❌ Такого пользователя не существует")
+
 
 @router.callback_query(F.data == "get_back_to_menu_admin_keyboard")
 async def edit_message_admin_keyboard(callback: CallbackQuery, state: FSMContext, bot: Bot):
+    await callback.answer()
     if search_super_admin(callback.from_user.id):
         keyboard = await get_super_admin_keyboard_menu()
         await callback.message.edit_text("👮 Меню Super Admin", reply_markup=keyboard)
@@ -796,21 +854,29 @@ async def edit_message_admin_keyboard(callback: CallbackQuery, state: FSMContext
 
 @router.callback_query(F.data == "return_block_super_admin_keyboard")
 async def get_block_menu(callback: CallbackQuery, state: FSMContext, bot: Bot):
+    await callback.answer()
     keyboard = InlineKeyboardBuilder.from_markup(await block_users())
-
     await callback.message.edit_text("🚫 Функция для взаимодействиями\n👤С блокировками пользователей", reply_markup=keyboard.as_markup())
 
 @router.message(wait.unblock_user)
 async def unblock_user(message: Message, state: FSMContext, bot: Bot):
     user_id = message.text
-    if search_user(user_id):
+    data = await state.get_data()
+    text = data.get("message_id")
+    try:
+        await message.delete()
+        await bot.delete_message(chat_id=message.chat.id, message_id=text)
+    except TelegramBadRequest:
+        pass
+    if search_blocked_user(user_id):
         unblock_blocked_user(user_id)
-        await message.answer("✅ Пользователь успешно разблокирован")
+        await message.answer("✅ Пользователь успешно разблокирован", reply_markup=await get_return_super_admin_block())
     else:
-        await message.answer("❌ Этот пользователь не заблокирован\n👤 Либо его не существует")
+        await message.answer("❌ Этот пользователь не заблокирован\n👤 Либо его не существует", reply_markup=await get_return_super_admin_block())
 
 @router.callback_query(F.data == "back_to_starts")
 async def start_callback(callback: CallbackQuery, state: FSMContext, bot: Bot):
+    await callback.answer()
     user_id = callback.from_user.id
     result = search_blocked_user(user_id)
     if result:

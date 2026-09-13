@@ -86,7 +86,7 @@ async def back_to_starts():
     back_to_start_keyboard.button(text="Назад ⬅️", callback_data="back_to_start")
     return back_to_start_keyboard.as_markup()
 
-async def func_admin_for_users(user_id):
+async def func_admin_for_users():
     admin_keyboard = InlineKeyboardBuilder()
     admin_keyboard.button(text="🔎 Найти пользователя", callback_data="search_user_profile", style="success")
     admin_keyboard.button(text="👤 Удалить пользователя", callback_data="delete_users", style="success")
@@ -134,4 +134,9 @@ async def get_return_super_admin_admin_keyboard_block():
 async def get_return_admin_for_admins():
     return_admin_keyboard = InlineKeyboardBuilder()
     return_admin_keyboard.button(text="➡️ Назад", callback_data="super_admin_for_admins")
+    return return_admin_keyboard.as_markup()
+
+async def get_return_admin_for_users():
+    return_admin_keyboard = InlineKeyboardBuilder()
+    return_admin_keyboard.button(text="➡️ Назад", callback_data="super_admin_or_admin_for_users")
     return return_admin_keyboard.as_markup()
