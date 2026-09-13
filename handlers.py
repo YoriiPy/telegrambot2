@@ -145,17 +145,15 @@ async def back_to_start(callback: CallbackQuery):
     super_admin = search_super_admin(user_id)
 
     try:
-        if super_admin or admin:
-            await callback.message.edit_text("Ты уже есть в базе ❌\nЕсть информация о тебе в БД ✅", reply_markup= await get_admin_start_keyboard())
-        elif user:
-            await callback.message.edit_text("Ты уже есть в базе ❌\nЕсть информация о тебе в БД ✅", reply_markup= await get_user_start_keyboard())
-    except TelegramBadRequest as e:
-        if "message can't be edited" in e.message:
-            await callback.message.delete()
-            if user:
-                await callback.message.answer("Ты уже есть в базе ❌\nЕсть информация о тебе в БД ✅", reply_markup=await get_admin_start_keyboard())
-            else:
-                await callback.message.answer("Ты уже есть в базе ❌\nЕсть информация о тебе в БД ✅",  reply_markup=await get_user_start_keyboard())
+        await callback.message.delete()
+        if user:
+            await callback.message.answer("Ты уже есть в базе ❌\nЕсть информация о тебе в БД ✅", reply_markup=await get_user_start_keyboard())
+        elif search_admin(user_id) or search_super_admin(user_id):
+            await callback.message.answer("Ты уже есть в базе ❌\nЕсть информация о тебе в БД ✅",  reply_markup=await get_admin_start_keyboard())
+        else:
+            await callback.message.answer_sticker("❌ Вас нету в БД", reply_markup=await get_return_start_keyboard())
+    except TelegramBadRequest:
+        pass
 
 @router.callback_query(F.data == "edit_to_name")
 async def wait_text_name(callback: CallbackQuery, state: FSMContext):
