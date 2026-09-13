@@ -804,7 +804,7 @@ async def history_payments_handler(callback: CallbackQuery, state: FSMContext, b
     if history_payments:
         await callback.message.edit_text(text, reply_markup = await func_super_admin_for_admin_return(user_id))
     else:
-        await callback.message.edit_text("У вас нету ни одного платежа ❌💵")
+        await callback.message.edit_text("У вас нету ни одного платежа ❌💵", reply_markup=await back_to_starts())
 
 
 
