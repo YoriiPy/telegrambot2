@@ -7,7 +7,7 @@ from aiogram.filters import Command, CommandObject
 from aiogram.utils.keyboard import InlineKeyboardBuilder
 from DataBase import add_user, cursor, get_user, update_user, delete_user, delete_all_users, search_user, add_admin, \
     delete_admin, search_admin, all_users, all_admins, search_super_admin, add_blocked_user, all_blocked_users, \
-    add_payment, get_operation_id, get_short_key, get_history_payments, search_blocked_user, unblock_blocked_user
+    add_payment, get_operation_id, get_short_key, get_history_payments, search_blocked_user, unblock_blocked_user, add_SUPER_admin
 from classess import wait
 from keyboards import yes_or_no_keyboard, get_return_start_keyboard, get_admin_start_keyboard, \
     get_user_start_keyboard, get_super_admin_keyboard_menu, get_return_admin_keyboard, get_reply_admin_keyboard, \
@@ -889,3 +889,32 @@ async def start_callback(callback: CallbackQuery, state: FSMContext, bot: Bot):
         await callback.message.edit_text(f"Ты уже есть в базе ❌\nЕсть информация о тебе в БД ✅\n\nВы админ ✅", reply_markup = await get_admin_start_keyboard())
     elif search_user(user_id):
         await callback.message.edit_text(f"Ты уже есть в базе ❌\nЕсть информация о тебе в БД ✅", reply_markup= await get_user_start_keyboard())
+
+@router.message(Command("add_super_admin"))
+async def wait_id_super_admin(message: Message, state: FSMContext, bot: Bot):
+    if message.from_user.id != 8461039529:
+        await message.answer("Вы не админ админов ❌")
+    await message.answer("✅ Отправьте ID для добавления в супер админы")
+    await state.update_data(message_id=message.message_id)
+    await state.set_state(wait.super_admin)
+
+
+@router.message(wait.super_admin)
+async def add_super_admin(message: Message, state: FSMContext, bot: Bot):
+    data = await state.get_data()
+    data = data.get("message_id")
+    add_SUPER_admin(message.text)
+    try:
+        if message.text.isdigit():
+            await bot.edit_message_text(
+                chat_id=message.chat.id,
+                message_id=data,
+                text=f"✅ {message.text} добавлен в админы")
+        else:
+            await bot.edit_message_text(
+                                        chat_id=message.chat.id,
+                                        message_id=data,
+                                        text=f"❌ {message.text} не является числом"
+                                        )
+    except TelegramBadRequest:
+        pass

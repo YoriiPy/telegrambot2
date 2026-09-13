@@ -107,6 +107,9 @@ def unblock_blocked_user(user_id):
     cursor.execute("DELETE FROM blocked_users WHERE user_id = ?", (user_id,))
     db.commit()
 
+def add_SUPER_admin(user_id):
+    cursor.execute("INSERT INTO super_admin (user_id) VALUES (?)", (user_id,))
+    db.commit()
 # ИСТОРИЯ ОПЛАТ
 cursor.execute("""CREATE TABLE IF NOT EXISTS payments (
                user_id INTEGER,
