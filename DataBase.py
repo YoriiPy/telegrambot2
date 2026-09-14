@@ -87,12 +87,12 @@ async def delete_all_users():
 async def search_user(user_id):
     async with aiosqlite.connect(DB_NAME) as db:
         async with db.execute("""SELECT * FROM users WHERE user_id = ?""", (user_id,)) as cursor:
-            return cursor.fetchall()
+            return await cursor.fetchall()
 
 async def all_users():
     async with aiosqlite.connect(DB_NAME) as db:
         async with db.execute("""SELECT * FROM users""") as cursor:
-            return cursor.fetchall()
+            return await cursor.fetchall()
 
 # админ
 async def add_admin(user_id):
@@ -108,19 +108,19 @@ async def delete_admin(user_id):
 async def search_admin(user_id):
     async with aiosqlite.connect(DB_NAME) as db:
         async with db.execute("""SELECT * FROM admin WHERE user_id = ?""", (user_id,)) as cursor:
-            return cursor.fetchall()
+            return await cursor.fetchall()
 
 async def all_admins():
     async with aiosqlite.connect(DB_NAME) as db:
         async with db.execute("""SELECT * FROM admin""") as cursor:
-            return cursor.fetchall()
+            return await cursor.fetchall()
 
 #СУПЕР АДМИН
 
 async def search_super_admin(user_id):
     async with aiosqlite.connect(DB_NAME) as db:
         async with db.execute("""SELECT * FROM super_admin WHERE user_id = ?""", (user_id,)) as cursor:
-           return cursor.fetchone()
+           return await cursor.fetchone()
 
 #ЗАБЛОКИРОВАННЫЕ ПОЛЬЗОВАТЕЛИ
 
@@ -135,12 +135,12 @@ async def add_blocked_user(user_id):
 async def all_blocked_users():
     async with aiosqlite.connect(DB_NAME) as db:
         async with db.execute("""SELECT * FROM blocked_users""") as cursor:
-            return cursor.fetchall()
+            return await cursor.fetchall()
 
 async def search_blocked_user(user_id):
     async with aiosqlite.connect(DB_NAME) as db:
         async with db.execute("SELECT * FROM blocked_users WHERE user_id = ?", (user_id,)) as cursor:
-            return cursor.fetchall()
+            return await cursor.fetchall()
 
 async def delete_blocked_user(user_id):
     async with aiosqlite.connect(DB_NAME) as db:
@@ -184,4 +184,4 @@ async def get_short_key(operation_id):
 async def get_history_payments(user_id):
     async with aiosqlite.connect(DB_NAME) as db:
         async with db.execute("""SELECT user_id, operation_id, data, short_key FROM payments WHERE user_id = ?""", (user_id,)) as cursor:
-            return cursor.fetchall()
+            return await cursor.fetchall()
