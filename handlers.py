@@ -909,4 +909,13 @@ async def add_super_admin(message: Message, state: FSMContext, bot: Bot):
                                         text=f"❌ {message.text} не является числом"
                                         )
     except TelegramBadRequest:
-        pass
+        await message.delete()
+        if message.text.isdigit():
+            await bot.send_message(
+                chat_id=message.chat.id,
+                text=f"✅ {message.text} добавлен в админы")
+        else:
+            await bot.send_message(
+                                    chat_id=message.chat.id,
+                                    text=f"❌ {message.text} не является числом"
+                                    )
