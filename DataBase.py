@@ -52,7 +52,7 @@ async def init_db():
 # ФУНКЦИИ DATABASE
 async def add_user(user_id, name, username):
     async with aiosqlite.connect(DB_NAME) as db:
-        async with db.execute("""SELECT user_id FROM users WHERE user_id = ?""", (user_id,)) as cursor:
+        async with db.execute("""SELECT 1 FROM users WHERE user_id = ?""", (user_id,)) as cursor:
             user = await cursor.fetchone()
             if user is None:
                 await db.execute("""INSERT INTO users (user_id, name, username) VALUES (?,?,?)""", (user_id, name, username))
@@ -86,7 +86,7 @@ async def delete_all_users():
 
 async def search_user(user_id):
     async with aiosqlite.connect(DB_NAME) as db:
-        async with db.execute("""SELECT * FROM users WHERE user_id = ?""", (user_id,)) as cursor:
+        async with db.execute("""SELECT 1 FROM users WHERE user_id = ?""", (user_id,)) as cursor:
             return await cursor.fetchall()
 
 async def all_users():
@@ -107,7 +107,7 @@ async def delete_admin(user_id):
 
 async def search_admin(user_id):
     async with aiosqlite.connect(DB_NAME) as db:
-        async with db.execute("""SELECT * FROM admin WHERE user_id = ?""", (user_id,)) as cursor:
+        async with db.execute("""SELECT 1 FROM admin WHERE user_id = ?""", (user_id,)) as cursor:
             return await cursor.fetchall()
 
 async def all_admins():
@@ -119,7 +119,7 @@ async def all_admins():
 
 async def search_super_admin(user_id):
     async with aiosqlite.connect(DB_NAME) as db:
-        async with db.execute("""SELECT * FROM super_admin WHERE user_id = ?""", (user_id,)) as cursor:
+        async with db.execute("""SELECT 1  FROM super_admin WHERE user_id = ?""", (user_id,)) as cursor:
            return await cursor.fetchone()
 
 #ЗАБЛОКИРОВАННЫЕ ПОЛЬЗОВАТЕЛИ
@@ -139,7 +139,7 @@ async def all_blocked_users():
 
 async def search_blocked_user(user_id):
     async with aiosqlite.connect(DB_NAME) as db:
-        async with db.execute("SELECT * FROM blocked_users WHERE user_id = ?", (user_id,)) as cursor:
+        async with db.execute("SELECT 1 FROM blocked_users WHERE user_id = ?", (user_id,)) as cursor:
             return await cursor.fetchall()
 
 async def delete_blocked_user(user_id):
