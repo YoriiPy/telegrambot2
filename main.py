@@ -1,6 +1,6 @@
 import asyncio
 from os import getenv
-
+from DataBase import init_db
 from aiogram import Bot, Dispatcher
 from dotenv import load_dotenv
 from handlers import router
@@ -19,6 +19,7 @@ try:
         # Создаем бота напрямую, без использования прокси-сессии
         bot = Bot(token=TOKEN)
 
+        await init_db()
         dp.include_router(router)
         await dp.start_polling(bot)
 
